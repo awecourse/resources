@@ -22,6 +22,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 from scipy import optimize as op
 from pylab import np
+from scipy.integrate import solve_ivp
 mpl.rcParams['font.family'] = "Open Sans"
 mpl.rcParams.update({'font.size': 18})
 mpl.rcParams['figure.figsize'] = 10, 5.625
@@ -354,3 +355,42 @@ ax2.set_ylim([0, 150])
 ax2.plot(wind_speed,  np.asarray(elevation_angle_in), 'b', linestyle='-', label=r"$\beta_{\mathrm{i}}$")
 fig.legend(facecolor="white", edgecolor="white", loc="upper right", bbox_to_anchor=(1,1), bbox_transform=ax1.transAxes)
 fig.savefig("operations_const_LoD_in.svg")
+
+
+plot_trajectory = True
+v_trajectory = 12.5 # m/s wind speed where trajectory is plotted
+
+def l(t): # tether length
+    return tether_length_max + v_in*t 
+
+def f(t, b): # db/dt
+    return v_trajectory/l(t) * ((kite_lift_coefficient_in/kite_drag_coefficient_in) * (np.cos(b) - f_in) - np.sin(b))
+
+if plot_trajectory:
+    f_in = float(reeling_factor_in[int(v_trajectory/wind_speed_delta)])               # reel-in factor [-]
+
+    v_in = v_trajectory*f_in
+    t_in_trajectory = (tether_length_min - tether_length_max)/(v_in)
+    b_ideal = np.arccos((np.sqrt(1 + E2in*(1 - f_in**2)) + f_in*E2in)/(1 + E2in))
+
+    tether_range = np.linspace(tether_length_min, tether_length_max, int(tether_length_max-tether_length_min+1))
+    
+    # Solve ODE for elevation_angle_in
+    trajectory = solve_ivp(f, (0, t_in_trajectory), [np.deg2rad(elevation_angle_out)], t_eval=np.linspace(0, t_in_trajectory, 100))
+
+    # reel-out trajectory
+    fig, ax1 = plt.subplots()
+    ax1.plot(tether_range*np.cos(np.deg2rad(elevation_angle_out)), tether_range*np.sin(np.deg2rad(elevation_angle_out)), 'k', label="Reel-out")
+    # reel-in trajectory
+    ax1.plot(l(trajectory.t) * np.cos(trajectory.y)[0], l(trajectory.t) * np.sin(trajectory.y)[0], label="Reel-in")
+    # minimum tether length
+    ax1.plot(np.linspace(-tether_length_min, tether_length_min, int(2*tether_length_min+1)), np.sqrt(tether_length_min**2 - np.linspace(-tether_length_min, tether_length_min, int(2*tether_length_min+1))**2), 'k:', label="Minimum tether length")
+    # Ideal reel-in trajectory
+    ax1.plot(tether_range*np.cos(b_ideal), tether_range*np.sin(b_ideal), 'r--', label="Ideal reel-in")
+    ax1.set(xlabel=r"Horizontal distance, m")
+    ax1.set(ylabel=r"Height, m")
+    ax1.set_xlim(-tether_length_max, tether_length_max)
+    ax1.set_ylim(0, 3/4 * (2*tether_length_max+1))
+    ax1.set_aspect("equal")
+    fig.legend(loc='upper left', bbox_to_anchor=(0.25, 0.9),facecolor="none", edgecolor="none", fontsize="small")
+    fig.savefig("trajectory.png")
