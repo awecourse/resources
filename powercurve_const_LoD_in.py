@@ -100,10 +100,10 @@ def objective_function_2(x, mu_F, f_nF):
              - (force_factor_in / force_factor_out) \
                * (np.sqrt(1 + E2in*(1 - f_in**2)) - f_in)**2/(1 + E2in))  \
             * f_in*b/(mu_F*f_in-b)
-
+            
 def objective_function_3(x, mu_P, f_nP):
     f_in     = x[0]
-    return -(((cosine_beta_out - f_nP) / mu_P)**2  \
+    return -((cosine_beta_out - f_nP/mu_P)**2  \
              - (force_factor_in / force_factor_out) \
                * (np.sqrt(1 + E2in*(1 - f_in**2)) - f_in)**2/(1 + E2in))  \
             * f_in*f_nP/(mu_P*f_in-f_nP)
@@ -325,11 +325,11 @@ ax1.set_ylim([0, 25])
 #ax1.grid()
 ax1.vlines(wind_speed_force_limit, 0, 100, colors='k', linestyles=':')
 ax1.vlines(wind_speed_power_limit, 0, 100, colors='k', linestyles=':')
-ax1.annotate("1",(15,40), ha="center", va="center", bbox={"boxstyle" : "circle", "color":"white", "ec" : "k"})
-ax1.annotate("2",(30,40), ha="center", va="center", bbox={"boxstyle" : "circle", "color":"white", "ec" : "k"})
-ax1.annotate("3",(37,40), ha="center", va="center", bbox={"boxstyle" : "circle", "color":"white", "ec" : "k"})
-ax1.annotate(r"$v_{\mathrm{n,F}}$",(24.5,-2.5), annotation_clip=False, ha="center", va="center")
-ax1.annotate(r"$v_{\mathrm{n,P}}$",(35.,-2.5), annotation_clip=False, ha="center", va="center")
+ax1.annotate("1",(5.3,23), ha="center", va="center", bbox={"boxstyle" : "circle", "color":"white", "ec" : "k"})
+ax1.annotate("2",(8.5,23), ha="center", va="center", bbox={"boxstyle" : "circle", "color":"white", "ec" : "k"})
+ax1.annotate("3",(12,23), ha="center", va="center", bbox={"boxstyle" : "circle", "color":"white", "ec" : "k"})
+ax1.annotate(r"$v_{\mathrm{n,F}}$",(wind_speed_force_limit,1.04*ax1.get_ylim()[1]), annotation_clip=False, ha="center", va="center")
+ax1.annotate(r"$v_{\mathrm{n,P}}$",(wind_speed_power_limit,1.04*ax1.get_ylim()[1]), annotation_clip=False, ha="center", va="center")
 ax1.plot(wind_speed,  np.asarray(power_ideal)/1000, 'k', linestyle=':', label=r"$P_{\mathrm{opt}}$")
 ax1.plot(wind_speed,  np.asarray(cycle_power)/1000, 'b', linestyle='-', label=r"$P_{\mathrm{c}}$")
 ax1.plot(wind_speed,  np.asarray(power_out)/1000, 'g', linestyle='--', label=r"$P_{\mathrm{o}}$")
@@ -340,17 +340,17 @@ fig.savefig("powercurve_const_LoD_in.svg")
 fig, ax1 = plt.subplots()
 ax1.set(xlabel=r"Wind speed, m/s", ylabel=r"Reeling factor")
 ax1.set_xlim([0, 20])
-ax1.set_ylim([0, 1.5])
+ax1.set_ylim([0, 1.6])
 #ax1.grid()
 ax1.vlines(wind_speed_force_limit, 0, 100, colors='k', linestyles=':')
 ax1.vlines(wind_speed_power_limit, 0, 100, colors='k', linestyles=':')
-ax1.annotate(r"$v_{\mathrm{n,F}}$",(24.5,-0.045), annotation_clip=False, ha="center", va="center")
-ax1.annotate(r"$v_{\mathrm{n,P}}$",(35,-0.045), annotation_clip=False, ha="center", va="center")
+ax1.annotate(r"$v_{\mathrm{n,F}}$",(wind_speed_force_limit,1.04*ax1.get_ylim()[1]), annotation_clip=False, ha="center", va="center")
+ax1.annotate(r"$v_{\mathrm{n,P}}$",(wind_speed_power_limit,1.04*ax1.get_ylim()[1]), annotation_clip=False, ha="center", va="center")
 ax1.plot(wind_speed,  np.asarray(reeling_factor_out), 'g', linestyle='--', label=r"$f_{\mathrm{o}}$")
 ax1.plot(wind_speed, -np.asarray(reeling_factor_in), 'r', linestyle='--', label=r"$-f_{\mathrm{i}}$")
 ax2 = ax1.twinx()
 ax2.set(ylabel=r"Elevation angle, deg")
-ax2.set_ylim([0, 150])
+ax2.set_ylim([0, 160])
 ax2.plot(wind_speed,  np.asarray(elevation_angle_in), 'b', linestyle='-', label=r"$\beta_{\mathrm{i}}$")
 fig.legend(facecolor="white", edgecolor="white", loc="upper right", bbox_to_anchor=(1,1), bbox_transform=ax1.transAxes)
 fig.savefig("operations_const_LoD_in.svg")
