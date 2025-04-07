@@ -54,6 +54,7 @@ nominal_generator_power   =  20000.  # W
 
 # Operational parameters
 elevation_angle_out       =  25.     # deg
+elevation_angle_in        =  25.     # deg
 reeling_speed_min_limit   =  -8.     # m/s
 reeling_speed_max_limit   =   8.     # m/s
 
@@ -101,7 +102,7 @@ def objective_function_3(x, mu_P, f_nP):
     f_in     = x[0]
     a        = 1 - 2*f_in*cosine_beta_in + f_in**2
     gamma_in = kite_lift_coefficient_in * np.sqrt(a/(1 - cosine_beta_in**2))
-    return -(((cosine_beta_out - f_nP) / mu_P)**2  \
+    return -((cosine_beta_out - f_nP/mu_P)**2  \
              - (gamma_in / force_factor_out) * a)  \
              * f_in*f_nP/(mu_P*f_in-f_nP)
 
@@ -318,11 +319,13 @@ power_max = np.max(power_ideal)
 
 fig, ax1 = plt.subplots()
 ax1.set(xlabel=r"Wind speed, m/s", ylabel=r"Mechanical power, kW")
-ax1.set_xlim([0, 50])
-ax1.set_ylim([0, 80])
+ax1.set_xlim([0, 20])
+ax1.set_ylim([0, 25])
 #ax1.grid()
-ax1.vlines(wind_speed_force_limit, 0, 100, colors='k', linestyles='solid')
-ax1.vlines(wind_speed_power_limit, 0, 100, colors='r', linestyles='solid')
+ax1.vlines(wind_speed_force_limit, 0, 100, colors='k', linestyles=':')
+ax1.vlines(wind_speed_power_limit, 0, 100, colors='k', linestyles=':')
+ax1.annotate(r"$v_{\mathrm{n,F}}$",(wind_speed_force_limit,1.04*ax1.get_ylim()[1]), annotation_clip=False, ha="center", va="center")
+ax1.annotate(r"$v_{\mathrm{n,P}}$",(wind_speed_power_limit,1.04*ax1.get_ylim()[1]), annotation_clip=False, ha="center", va="center")
 ax1.plot(wind_speed,  np.asarray(power_ideal)/1000, 'r', linestyle=':', label=r"$P_{\mathrm{opt}}$")
 ax1.plot(wind_speed,  np.asarray(cycle_power)/1000, 'b', linestyle='-', label=r"$P_{\mathrm{c}}$")
 ax1.plot(wind_speed,  np.asarray(power_out)/1000, 'g', linestyle='--', label=r"$P_{\mathrm{o}}$")
@@ -332,16 +335,18 @@ fig.savefig("powercurve_const_beta_in.svg")
 
 fig, ax1 = plt.subplots()
 ax1.set(xlabel=r"Wind speed, m/s", ylabel=r"Reeling factor")
-ax1.set_xlim([0, 50])
-ax1.set_ylim([0, 1])
+ax1.set_xlim([0, 20])
+ax1.set_ylim([0, 1.6])
 #ax1.grid()
-ax1.vlines(wind_speed_force_limit, 0, 100, colors='k', linestyles='solid')
-ax1.vlines(wind_speed_power_limit, 0, 100, colors='r', linestyles='solid')
+ax1.vlines(wind_speed_force_limit, 0, 100, colors='k', linestyles=':')
+ax1.vlines(wind_speed_power_limit, 0, 100, colors='k', linestyles=':')
+ax1.annotate(r"$v_{\mathrm{n,F}}$",(wind_speed_force_limit,1.04*ax1.get_ylim()[1]), annotation_clip=False, ha="center", va="center")
+ax1.annotate(r"$v_{\mathrm{n,P}}$",(wind_speed_power_limit,1.04*ax1.get_ylim()[1]), annotation_clip=False, ha="center", va="center")
 ax1.plot(wind_speed,  np.asarray(reeling_factor_out), 'g', linestyle='--', label=r"$f_{\mathrm{o}}$")
 ax1.plot(wind_speed, -np.asarray(reeling_factor_in), 'r', linestyle='--', label=r"$-f_{\mathrm{i}}$")
 ax2 = ax1.twinx()
 ax2.set(ylabel=r"Lift to drag ratio")
-ax2.set_ylim([0, 1.2])
+ax2.set_ylim([0, 0.6])
 ax2.plot(wind_speed,  np.asarray(lift_to_drag_in), 'b', linestyle='-', label=r"$E_{\mathrm{i}}$")
 fig.legend(facecolor="white", edgecolor="white", loc="upper right", bbox_to_anchor=(1,1), bbox_transform=ax1.transAxes)
 fig.savefig("operations_const_beta_in.svg")
