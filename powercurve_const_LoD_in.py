@@ -33,7 +33,7 @@ mpl.rcParams['pdf.fonttype'] = 42 # Output Type 3 (Type3) or Type 42 (TrueType)
 atmosphere_density        =  1.225   # kg/**3
 wind_speed_min            =  1.      # m/s
 wind_speed_max            =  20.     # m/s
-wind_speed_delta          =  0.01     # m/s
+wind_speed_delta          =  0.01    # m/s
 
 # Kite properties
 kite_planform_area        =  16.7    # m**2
@@ -55,7 +55,10 @@ nominal_generator_power   =  20000.  # W
 # Operational parameters
 elevation_angle_out       =  25.     # deg
 reeling_speed_min_limit   =  -8.     # m/s
-reeling_speed_max_limit   =   8.     # m/s
+reeling_speed_max_limit   =   8.     # m/s  # https://github.com/awecourse/resources/issues/7
+
+# Numerical parameters
+f_eps                     =  1.e-4   # substantial effect on solution!
 
 # Derived properties
 rm_out = 0.5 * (tether_length_min + tether_length_max)
@@ -67,6 +70,9 @@ cosine_beta_out  = np.cos(np.radians(elevation_angle_out))
 force_factor_out = kite_lift_coefficient_out * np.sqrt(1+1/E2out) * (1+E2out)
 force_factor_in  = kite_lift_coefficient_in  * np.sqrt(1+1/E2in)
 power_factor_ideal = force_factor_out * cosine_beta_out**3 * 4/27
+
+fmin = -np.sqrt(1+1/E2in)
+elevation_angle_max = np.degrees( np.arccos( fmin*E2in/(1 + E2in) ) )
 
 wind_speed_range = wind_speed_max - wind_speed_min
 num_wind_speeds  = int(wind_speed_range/wind_speed_delta + 1)
@@ -127,20 +133,20 @@ for v_w in wind_speed:
     # Wind power density
     P_w = q*v_w
 
-    # Reeling factor limits
-    f_max = reeling_speed_max_limit / v_w
-    f_min = reeling_speed_min_limit / v_w
+    # Reeling factor limits from hardware and theoretical limits)
+    f_max = min( reeling_speed_max_limit / v_w, 1.0)
+    f_min = max( reeling_speed_min_limit / v_w, -np.sqrt(1+1/E2in))
 
     # Unconstrained operation
     if wind_speed_regime == 1:
 
-        starting_point = (0.001, -0.001)
-        bounds         = ((0.001,  f_max), (f_min, -0.001),)
+        starting_point = (f_eps, -f_eps)
+        bounds         = ((f_eps,  f_max), (f_min, -f_eps),)
 
         optimisation_result = op.minimize(objective_function_1, \
                                           starting_point,       \
                                           bounds=bounds,        \
-                                          method='COBYLA')
+                                          method='SLSQP')
 
         # Reeling factors
         f_out = optimisation_result['x'][0]
@@ -188,14 +194,14 @@ for v_w in wind_speed:
 
         mu_F = v_w / wind_speed_force_limit
 
-        starting_point = (-0.001)
-        bounds         = ((f_min, -0.001),)
+        starting_point = (-f_eps)
+        bounds         = ((f_min, -f_eps),)
 
         optimisation_result = op.minimize(objective_function_2, \
                                           starting_point,       \
                                           args=(mu_F, f_nF),    \
                                           bounds=bounds,        \
-                                          method='COBYLA')
+                                          method='SLSQP')
 
         # Reeling factors
         f_out = (cosine_beta_out * (mu_F - 1) + f_nF)/mu_F
@@ -258,14 +264,14 @@ for v_w in wind_speed:
 #                          * kite_planform_area * force_factor_out)) + f_out
 
 
-        starting_point = (-0.001)
-        bounds         = ((f_min, -0.001),)
+        starting_point = (-f_eps)
+        bounds         = ((f_min, -f_eps),)
 
         optimisation_result = op.minimize(objective_function_3, \
                                           starting_point,       \
                                           args=(mu_P, f_nP),    \
                                           bounds=bounds,        \
-                                          method='COBYLA')
+                                          method='SLSQP')
 
         # Reeling factors
         f_in  = optimisation_result['x'][0]
@@ -312,8 +318,10 @@ for v_w in wind_speed:
 
 print()
 cp = np.array(cycle_power)
+print(wind_speed_force_limit)
 print("> Rated power: ", "{:6.0f}".format(max(cp)), "W at ", \
       "{:4.1f}".format(wind_speed[cp.argmax()]), "m/s")
+print("> beta_max   : ", elevation_angle_max)
 
 power_min = np.min(power_ideal)
 power_max = np.max(power_ideal)
