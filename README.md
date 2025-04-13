@@ -1,6 +1,6 @@
 # Performance analysis
 
-Source code for the performance analysis of an airborne wind energy system [[1]](#References). The file `powercurve.py` generates a continuous power curve for a pumping airborne wind energy system in three wind speed regimes. The control strategy was first proposed in [[2]](#References) and was extended in the chapter to account for constant elevation angles during the reel-out and reel-in phases.
+Source code for the performance analysis of an airborne wind energy system [[1]](#References). The file `powercurve_const_LoD_in.py` generates a continuous power curve for a pumping airborne wind energy system in three wind speed regimes. The control strategy was first proposed in [[2]](#References) and was extended in the chapter to account for constant elevation angles during the reel-out and reel-in phases.
 
 <img src="./powercurve_const_LoD_in.svg" width=49%></img>
 <img src="./operations_const_LoD_in.svg" width=49%></img>
