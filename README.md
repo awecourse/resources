@@ -14,6 +14,6 @@ The file `powercurve_const_beta_in.py` contains the alternative implementation, 
 [1] Van der Vlugt, R., Peschel, J., Schmehl, R.:. Design and Experimental
 Characterization of a Pumping Kite Power System. In: Ahrens, U., Diehl, M.,
 Schmehl, R. (eds) Airborne Wind Energy. Green Energy and Technology. Springer,
-Berlin, Heidelberg. Chap. 23, pp. 403-425, 2013 https://doi.org/10.1007/978-3-642-39965-7_23
+Berlin, Heidelberg. Chap. 23, pp. 403-425, 2013 [https://doi.org/10.1007/978-3-642-39965-7_23](https://doi.org/10.1007/978-3-642-39965-7_23)
 
-[2] Luchsinger, R.H.: Pumping Cycle Kite Power. In: Ahrens, U., Diehl, M., and Schmehl, R. (eds) Airborne Wind Energy. Green Energy and Technology. Springer, Berlin Heidelberg. Chap. 3, pp 47-64, 2013. doi:[10.1007/978-3-642-39965-7_3](https://doi.org/10.1007/978-3-642-39965-7_3).
+[2] Luchsinger, R.H.: Pumping Cycle Kite Power. In: Ahrens, U., Diehl, M., and Schmehl, R. (eds) Airborne Wind Energy. Green Energy and Technology. Springer, Berlin Heidelberg. Chap. 3, pp 47-64, 2013. [https://doi.org/10.1007/978-3-642-39965-7_3](https://doi.org/10.1007/978-3-642-39965-7_3).
